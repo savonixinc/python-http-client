@@ -1,6 +1,7 @@
 import os
 
 from .client import Client  # noqa
+from .async_client import AsyncClient
 from .exceptions import (  # noqa
     HTTPError,
     BadRequestsError,
