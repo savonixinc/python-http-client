@@ -1,7 +1,9 @@
 import os
+import sys
 
 from .client import Client  # noqa
-from .async_client import AsyncClient
+if sys.version_info >= (3, 5):
+    from .async_client import AsyncClient  # noqa
 from .exceptions import (  # noqa
     HTTPError,
     BadRequestsError,
