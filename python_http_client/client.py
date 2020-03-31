@@ -1,7 +1,6 @@
 """HTTP Client library"""
 import json
 
-from .exceptions import handle_error
 
 try:
     # Python 3
