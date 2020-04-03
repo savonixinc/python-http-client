@@ -57,7 +57,7 @@ class MockClient(Client):
         self.response_code = 200
         Client.__init__(self, host)
 
-    def _make_request(self, opener, request, timeout=None):
+    def _make_request(self, request, timeout=None):
         if 200 <= self.response_code < 299:  # if successful code
             return MockResponse(self.response_code)
         else:
@@ -125,13 +125,13 @@ class TestClient(unittest.TestCase):
     def test__urllib_headers(self, maker):
         self.client._update_headers({'X-test': 'Test'})
         self.client.get()
-        request = maker.call_args[0][1]
+        request = maker.call_args[0][0]
         self.assertIn('X-test', request.headers)
 
     @mock.patch('python_http_client.client.Client._make_request')
     def test__urllib_method(self, maker):
         self.client.delete()
-        request = maker.call_args[0][1]
+        request = maker.call_args[0][0]
         self.assertEqual(request.get_method(), 'DELETE')
 
     def test__update_headers(self):
@@ -164,25 +164,25 @@ class TestClient(unittest.TestCase):
         # Test GET
         mock_client._url_path += ['test']
         r = mock_client.get()
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.response_code, 200)
 
         # Test POST
         r = mock_client.put()
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.response_code, 200)
 
         # Test PATCH
         r = mock_client.patch()
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.response_code, 200)
 
         # Test POST
         mock_client.response_code = 201
         r = mock_client.post()
-        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.response_code, 201)
 
         # Test DELETE
         mock_client.response_code = 204
         r = mock_client.delete()
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.response_code, 204)
 
         mock_client.response_code = 400
         self.assertRaises(BadRequestsError, mock_client.get)
