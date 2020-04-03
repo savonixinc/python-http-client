@@ -1,38 +1,42 @@
 FROM ubuntu:xenial
-ENV PYTHON_VERSIONS='python2.7 python3.4 python3.5 python3.6 python3.7' \
+ENV PYTHON_VERSIONS='python3.7' \
     OAI_SPEC_URL="https://raw.githubusercontent.com/sendgrid/sendgrid-oai/master/oai_stoplight.json"
 
-# install testing versions of python, including old versions, from deadsnakes
+# install testing versions of python from deadsnakes
 RUN set -x \
     && apt-get update \
     && apt-get install -y --no-install-recommends software-properties-common \
     && apt-add-repository -y ppa:fkrull/deadsnakes \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update \
     && apt-get install -y --no-install-recommends $PYTHON_VERSIONS \
-        git \
         curl \
+        git \
+    && apt-get install -y python3-pip \
     && apt-get purge -y --auto-remove software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
 
 # install Prism
-ADD https://raw.githubusercontent.com/stoplightio/prism/master/install.sh install.sh
+ADD https://raw.githubusercontent.com/stoplightio/prism/master/install install.sh
 RUN chmod +x ./install.sh && \
     ./install.sh && \
     rm ./install.sh
 
-# install pip, tox
-ADD https://bootstrap.pypa.io/get-pip.py get-pip.py
-RUN python2.7 get-pip.py && \
-    pip install tox && \
-    rm get-pip.py
-
 # set up default Twilio SendGrid env
 WORKDIR /root/sources
-RUN git clone https://github.com/sendgrid/sendgrid-python.git && \
-    git clone https://github.com/sendgrid/python-http-client.git
+RUN git clone https://github.com/kur1zu/python-http-client.git && \
+    git clone https://github.com/kur1zu/sendgrid-python.git
+
+WORKDIR /root/sources/sendgrid-python
+RUN git checkout dev
+
+WORKDIR /root/sources/python-http-client
+RUN git checkout dev
+
 WORKDIR /root
+RUN python3.7 -m pip install -e "/root/sources/python-http-client[async]"
 RUN ln -s /root/sources/sendgrid-python/sendgrid && \
     ln -s /root/sources/python-http-client/python_http_client
 

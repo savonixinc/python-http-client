@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python2.7 -m unittest discover -v
+python3.7 -m unittest discover -v
