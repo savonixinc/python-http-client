@@ -62,11 +62,11 @@ target/
 .ipynb_checkpoints
 
 .env
+.venv
 venv/
 .python-version
 cleanup.sh
 *_example.py
-.idea
 README.txt
 python_http_client/VERSION.txt
 Pipfile
@@ -74,3 +74,4 @@ Pipfile.lock
 
 # IDE
 .vscode
+.idea
