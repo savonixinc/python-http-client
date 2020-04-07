@@ -71,3 +71,6 @@ README.txt
 python_http_client/VERSION.txt
 Pipfile
 Pipfile.lock
+
+# IDE
+.vscode

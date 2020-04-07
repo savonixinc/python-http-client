@@ -19,6 +19,8 @@ copy_file(version_path,
           os.path.join(dir_path, 'python_http_client', 'VERSION.txt'),
           verbose=0)
 
+EXTRA_ASYNC = ['aiohttp']
+
 setup(
     name='python_http_client',
     version=version,
@@ -33,9 +35,7 @@ setup(
     long_description_content_type='text/x-rst',
     long_description=readme,
     extras_require={
-        "async": [
-            'aiohttp;python_version>"3.4"'
-        ],
+        "async": EXTRA_ASYNC,
     },
     keywords=[
         'REST',
