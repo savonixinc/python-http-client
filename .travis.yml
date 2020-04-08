@@ -9,8 +9,12 @@ python:
   - '3.7'
   - '3.8'
 before_install:
-  - pip install pycodestyle coverage codecov asynctest
+  - pip install pycodestyle coverage codecov
   - if [[ "$TRAVIS_PYTHON_VERSION" == 2.7* ]]; then pip install mock; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 3.5* ]]; then pip install aiohttp asynctest; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 3.6* ]]; then pip install aiohttp asynctest; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 3.7* ]]; then pip install aiohttp asynctest; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == 3.8* ]]; then pip install aiohttp asynctest; fi
 install:
   - pip install virtualenv --upgrade
   - make install
