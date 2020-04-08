@@ -9,7 +9,7 @@ python:
   - '3.7'
   - '3.8'
 before_install:
-  - pip install pycodestyle coverage codecov
+  - pip install pycodestyle coverage codecov asynctest
   - if [[ "$TRAVIS_PYTHON_VERSION" == 2.7* ]]; then pip install mock; fi
 install:
   - pip install virtualenv --upgrade
