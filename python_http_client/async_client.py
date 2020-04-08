@@ -12,7 +12,7 @@ class AsyncClient(Client):
     def __init__(
         self,
         host,
-        aiohttp_session,
+        client_session,
         request_headers=None,
         version=None,
         url_path=None,
@@ -27,13 +27,13 @@ class AsyncClient(Client):
             append_slash=append_slash,
             timeout=timeout,
         )
-        self._aiohttp_client_session = aiohttp_session
+        self._aiohttp_client_session = client_session
 
     def _build_client(self, name=None):
         url_path = self._url_path + [name] if name else self._url_path
         return AsyncClient(
             host=self.host,
-            aiohttp_session=self._aiohttp_client_session,
+            client_session=self._aiohttp_client_session,
             version=self._version,
             request_headers=self.request_headers,
             url_path=url_path,

@@ -36,7 +36,7 @@ class TestAsyncClient(asynctest.TestCase):
     def test__build_client(self):
         original_client = AsyncClient(
             host=self.host,
-            aiohttp_session='AIOHTTP_SESSION',
+            client_session='AIOHTTP_SESSION',
             version=1,
             append_slash=True,
             timeout=60)
