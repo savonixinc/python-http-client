@@ -3,7 +3,7 @@ import sys
 
 from .client import Client  # noqa
 
-if sys.version_info >= (3,5):
+if sys.version_info >= (3, 5):
     try:
         from .async_client import AsyncClient  # noqa
     except ImportError:

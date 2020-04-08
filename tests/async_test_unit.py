@@ -40,7 +40,9 @@ class TestAsyncClient(asynctest.TestCase):
             timeout=60)
         produced_client = original_client.path
         self.assertEqual(produced_client.host, self.host)
-        self.assertEqual(produced_client._aiohttp_client_session, 'AIOHTTP_SESSION')
+        self.assertEqual(
+            produced_client._aiohttp_client_session, 'AIOHTTP_SESSION'
+        )
         self.assertDictEqual(produced_client.request_headers, {})
         self.assertEqual(produced_client._version, 1)
         self.assertListEqual(produced_client._url_path, ['path'])
@@ -59,24 +61,26 @@ class TestAsyncClient(asynctest.TestCase):
     async def test__make_request(self):
         async def response_text():
             return 'response-text'
-        
+
         Request = namedtuple(
             'Request',
             ['get_method', 'get_full_url', 'headers', 'data'],
         )
         server_response = asynctest.Mock()
         server_response.status = 200
-        server_response.headers = {'Response-Header': 'response-header-content'}
+        server_response.headers = {
+            'Response-Header': 'response-header-content'
+        }
         server_response.text.return_value = response_text()
-        
+
         request_context_manager = asynctest.MagicMock()
         request_context_manager.__aenter__.return_value = server_response
-        
+
         session = asynctest.Mock()
         session.request.return_value = request_context_manager
-        
+
         client = AsyncClient(self.host, session)
-        
+
         response = await client._make_request(
             Request(
                 lambda: 'get',
@@ -85,7 +89,7 @@ class TestAsyncClient(asynctest.TestCase):
                 'request-data'
             )
         )
-        
+
         session.request.assert_called_once_with(
             'get',
             'http://example.com',
