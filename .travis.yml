@@ -18,7 +18,7 @@ install:
 script:
   - pycodestyle --exclude=venv
   - coverage run -m unittest discover -p "test_*.py" -v
-  - if [[ $TRAVIS_PYTHON_VERSION =~ "3\.[5678]\..*" ]]; coverage run -m unittest discover -p "async_test_*.py" -v
+  - if [[ $TRAVIS_PYTHON_VERSION =~ "3\.[5678]\..*" ]]; then coverage run -m unittest discover -p "async_test_*.py" -v; fi
 after_script:
   - codecov
   - make test
