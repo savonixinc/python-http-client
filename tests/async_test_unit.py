@@ -1,14 +1,16 @@
-from python_http_client import AsyncClient, Client
 import asynctest
 import os
 import sys
 import pickle
 import unittest
 
+from collections import namedtuple
+
+from python_http_client import AsyncClient, Client
+
 if sys.version_info < (3, 5):
     raise unittest.SkipTest()
 
-from collections import namedtuple
 
 class TestAsyncClient(asynctest.TestCase):
     def setUp(self):
@@ -99,4 +101,6 @@ class TestAsyncClient(asynctest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.body, 'response-text')
-        self.assertDictEqual(response.headers, {'Response-Header': 'response-header-content'})
+        self.assertDictEqual(
+            response.headers, {'Response-Header': 'response-header-content'}
+        )
