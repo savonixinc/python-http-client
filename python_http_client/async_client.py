@@ -47,7 +47,7 @@ class AsyncClient(Client):
             async with self._aiohttp_client_session.request(
                 request.get_method(),
                 request.get_full_url(),
-                headers=request.headers,
+                headers={key: str(value) for key, value in request.headers.items()},
                 data=request.data,
                 timeout=timeout,
             ) as response:
