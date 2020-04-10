@@ -12,7 +12,7 @@ class AsyncClient(Client):
     def __init__(
         self,
         host,
-        client_session,
+        client_session=None,
         request_headers=None,
         version=None,
         url_path=None,
@@ -29,6 +29,14 @@ class AsyncClient(Client):
         )
         self._aiohttp_client_session = client_session
 
+    def client_session_is_applied(self):
+        return self._aiohttp_client_session is not None
+    
+    def set_client_session(self, session):
+        if self.client_session_is_applied():
+            raise ValueError('aiohttp.ClientSession instance has already been applied')
+        self._aiohttp_client_session = session
+
     def _build_client(self, name=None):
         url_path = self._url_path + [name] if name else self._url_path
         return AsyncClient(
@@ -42,6 +50,8 @@ class AsyncClient(Client):
         )
 
     async def _make_request(self, request, timeout=None):
+        if not self.client_session_is_applied():
+            raise ValueError('aiohttp.ClientSession instance is required')
         timeout = timeout or self.timeout
         try:
             async with self._aiohttp_client_session.request(
