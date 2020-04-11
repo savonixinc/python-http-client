@@ -31,10 +31,12 @@ class AsyncClient(Client):
 
     def client_session_is_applied(self):
         return self._aiohttp_client_session is not None
-    
+
     def set_client_session(self, session):
         if self.client_session_is_applied():
-            raise ValueError('aiohttp.ClientSession instance has already been applied')
+            raise ValueError(
+                'aiohttp.ClientSession instance has already been applied'
+            )
         self._aiohttp_client_session = session
 
     def _build_client(self, name=None):
