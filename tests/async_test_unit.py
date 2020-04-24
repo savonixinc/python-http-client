@@ -6,13 +6,13 @@ import unittest
 
 from collections import namedtuple
 
+if sys.version_info < (3, 5):
+    raise unittest.SkipTest()
+
 from python_http_client import (
     AiohttpClientSessionError,
     AsyncClient,
     Client)
-
-if sys.version_info < (3, 5):
-    raise unittest.SkipTest()
 
 
 class TestAsyncClient(asynctest.TestCase):
@@ -26,8 +26,7 @@ class TestAsyncClient(asynctest.TestCase):
         self.assertIsInstance(client, Client)
 
         self.assertEqual(client.host, self.host)
-        self.assertEqual(
-            client._aiohttp_client_session, 'AIOHTTP_SESSION_STUB')
+        self.assertEqual(client.client_session, 'AIOHTTP_SESSION_STUB')
         self.assertEqual(client.request_headers, {})
         self.assertIs(client.timeout, None)
         self.assertIsNone(client._version)
@@ -35,21 +34,21 @@ class TestAsyncClient(asynctest.TestCase):
         self.assertIsNone(client.timeout)
 
         methods = {'delete', 'get', 'patch', 'post', 'put'}
-        self.assertEqual(client.http_methods, methods)
+        self.assertEqual(client.methods, methods)
 
     def test_client_session_is_set(self):
         client = AsyncClient(self.host)
-        self.assertFalse(client.client_session_is_set())
+        self.assertIsNone(client.client_session)
         client = AsyncClient(self.host, client_session='AIOHTTP_SESSION_STUB')
-        self.assertTrue(client.client_session_is_set())
+        self.assertEqual(client.client_session, 'AIOHTTP_SESSION_STUB')
 
     def test_set_client_session(self):
         client = AsyncClient(self.host)
-        self.assertFalse(client.client_session_is_set())
-        client.set_client_session('AIOHTTP_SESSION_STUB')
-        self.assertTrue(client.client_session_is_set())
+        self.assertIsNone(client.client_session)
+        client.client_session = 'AIOHTTP_SESSION_STUB'
+        self.assertEqual(client.client_session, 'AIOHTTP_SESSION_STUB')
         with self.assertRaises(AiohttpClientSessionError):
-            client.set_client_session('ANOTHER_CLIENT_SESSION')
+            client.client_session = 'ANOTHER_CLIENT_SESSION'
 
     def test__build_client(self):
         original_client = AsyncClient(
@@ -60,8 +59,7 @@ class TestAsyncClient(asynctest.TestCase):
             timeout=60)
         produced_client = original_client.path
         self.assertEqual(produced_client.host, self.host)
-        self.assertEqual(
-            produced_client._aiohttp_client_session, 'AIOHTTP_SESSION')
+        self.assertEqual(produced_client.client_session, 'AIOHTTP_SESSION')
         self.assertDictEqual(produced_client.request_headers, {})
         self.assertEqual(produced_client._version, 1)
         self.assertListEqual(produced_client._url_path, ['path'])
@@ -107,7 +105,7 @@ class TestAsyncClient(asynctest.TestCase):
         with self.assertRaises(AiohttpClientSessionError):
             await client._make_request(request)
 
-        client.set_client_session(session)
+        client.client_session = session
         response = await client._make_request(request)
         session.request.assert_called_once_with(
             'get',

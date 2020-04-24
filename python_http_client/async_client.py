@@ -16,6 +16,13 @@ class AiohttpClientSessionError(ValueError):
     """Invalid aiohttp.ClientSession error"""
 
 
+class AsyncResponse(Response):
+    def __init__(self, code, body, headers):
+        self._status_code = code
+        self._body = body
+        self._headers = headers
+
+
 class AsyncClient(Client):
     """Main async python HTTP client class"""
     def __init__(
@@ -30,15 +37,13 @@ class AsyncClient(Client):
         super().__init__(*args, **kwargs)
         self._aiohttp_client_session = client_session
 
-    def client_session_is_set(self) -> bool:
-        """Check if the aiohttp.ClientSession is applied
+    @property
+    def client_session(self):
+        """aiohttp.ClientSession instance"""
+        return self._aiohttp_client_session
 
-        :return: True if the ClientSession has been set
-        :rtype: bool
-        """
-        return self._aiohttp_client_session is not None
-
-    def set_client_session(self, session: ClientSession):
+    @client_session.setter
+    def client_session(self, session: ClientSession):
         """Apply aiohttp.ClientSession instance
 
         The only ClientSession instance can be applied. Otherwise
@@ -49,7 +54,7 @@ class AsyncClient(Client):
                                            or another external has already
                                            been applied
         """
-        if self.client_session_is_set():
+        if self.client_session:
             raise AiohttpClientSessionError(
                 'aiohttp.ClientSession instance has already been set')
         self._aiohttp_client_session = session
@@ -58,7 +63,7 @@ class AsyncClient(Client):
         url_path = self._url_path + [name] if name else self._url_path
         return AsyncClient(
             host=self.host,
-            client_session=self._aiohttp_client_session,
+            client_session=self.client_session,
             version=self._version,
             request_headers=self.request_headers,
             url_path=url_path,
@@ -66,12 +71,12 @@ class AsyncClient(Client):
             timeout=self.timeout)
 
     async def _make_request(self, request, timeout=None):
-        if not self.client_session_is_set():
+        if not self.client_session:
             raise AiohttpClientSessionError(
                 'aiohttp.ClientSession instance is required')
         timeout = timeout or self.timeout
         try:
-            async with self._aiohttp_client_session.request(
+            async with self.client_session.request(
                 request.get_method(),
                 request.get_full_url(),
                 headers={
@@ -83,7 +88,7 @@ class AsyncClient(Client):
                 code = response.status
                 headers = response.headers
                 body = await response.text()
-                if code > http.HTTPStatus.BAD_REQUEST:
+                if code >= http.HTTPStatus.BAD_REQUEST:
                     raise HTTPError(
                         request.get_full_url(), code, body, headers, None)
         except ClientConnectionError as e:
@@ -91,7 +96,4 @@ class AsyncClient(Client):
         except HTTPError as e:
             raise handle_error(e)
         else:
-            response_class = namedtuple(
-                "Response", ["getcode", "read", "info"],
-            )(lambda: code, lambda: body, lambda: headers)
-            return Response(response_class)
+            return AsyncResponse(code, body, headers)

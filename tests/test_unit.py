@@ -83,7 +83,7 @@ class TestClient(unittest.TestCase):
         self.assertEqual(default_client.request_headers, {})
         self.assertIs(default_client.timeout, None)
         methods = {'delete', 'get', 'patch', 'post', 'put'}
-        self.assertEqual(default_client.http_methods, methods)
+        self.assertEqual(default_client.methods, methods)
         self.assertIsNone(default_client._version)
         self.assertEqual(default_client._url_path, [])
 
@@ -96,7 +96,7 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.host, self.host)
         self.assertEqual(client.request_headers, request_headers)
         methods = {'delete', 'get', 'patch', 'post', 'put'}
-        self.assertEqual(client.http_methods, methods)
+        self.assertEqual(client.methods, methods)
         self.assertEqual(client._version, 3)
         self.assertEqual(client._url_path, [])
         self.assertEqual(client.timeout, 10)

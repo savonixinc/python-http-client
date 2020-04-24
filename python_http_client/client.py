@@ -65,7 +65,7 @@ class Client(object):
     """Quickly and easily access any REST or REST-like API."""
 
     # These are the supported HTTP verbs
-    http_methods = {'delete', 'get', 'patch', 'post', 'put'}
+    methods = {'delete', 'get', 'patch', 'post', 'put'}
 
     def __init__(self,
                  host,
@@ -212,7 +212,7 @@ class Client(object):
             return get_version
 
         # We have reached the end of the method chain, make the API call
-        if name in self.http_methods:
+        if name in self.methods:
             method = name.upper()
 
             def http_request(
