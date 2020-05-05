@@ -54,7 +54,7 @@ class AsyncClient(Client):
                                            or another external has already
                                            been applied
         """
-        if self.client_session:
+        if self._aiohttp_client_session:
             raise AiohttpClientSessionError(
                 'aiohttp.ClientSession instance has already been set')
         self._aiohttp_client_session = session
