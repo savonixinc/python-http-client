@@ -17,6 +17,8 @@ class AiohttpClientSessionError(ValueError):
 
 
 class AsyncResponse(Response):
+    """Holds the response from an async API call."""
+
     def __init__(self, code, body, headers):
         self._status_code = code
         self._body = body
