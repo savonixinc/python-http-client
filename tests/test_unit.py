@@ -1,7 +1,7 @@
 import pickle
 import unittest
 
-from python_http_client.client import Client
+from python_http_client.client import Client, Response
 from python_http_client.exceptions import (
     BadRequestsError, HTTPError,
     NotFoundError,
@@ -57,9 +57,9 @@ class MockClient(Client):
         self.response_code = 200
         Client.__init__(self, host)
 
-    def _make_request(self, opener, request, timeout=None):
+    def _make_request(self, request, timeout=None):
         if 200 <= self.response_code < 299:  # if successful code
-            return MockResponse(self.response_code)
+            return Response(MockResponse(self.response_code))
         else:
             raise handle_error(MockException(self.response_code))
 
@@ -125,13 +125,13 @@ class TestClient(unittest.TestCase):
     def test__urllib_headers(self, maker):
         self.client._update_headers({'X-test': 'Test'})
         self.client.get()
-        request = maker.call_args[0][1]
+        request = maker.call_args[0][0]
         self.assertIn('X-test', request.headers)
 
     @mock.patch('python_http_client.client.Client._make_request')
     def test__urllib_method(self, maker):
         self.client.delete()
-        request = maker.call_args[0][1]
+        request = maker.call_args[0][0]
         self.assertEqual(request.get_method(), 'DELETE')
 
     def test__update_headers(self):

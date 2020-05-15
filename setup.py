@@ -32,6 +32,9 @@ setup(
     description='HTTP REST client, simplified for Python',
     long_description_content_type='text/x-rst',
     long_description=readme,
+    extras_require={
+        "async": ['aiohttp'],
+    },
     keywords=[
         'REST',
         'HTTP',

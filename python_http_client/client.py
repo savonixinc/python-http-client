@@ -1,7 +1,6 @@
 """HTTP Client library"""
 import json
 
-from .exceptions import handle_error
 
 try:
     # Python 3
@@ -13,6 +12,8 @@ except ImportError:
     import urllib2 as urllib
     from urllib2 import HTTPError
     from urllib import urlencode
+
+from .exceptions import handle_error
 
 
 class Response(object):
@@ -157,7 +158,7 @@ class Client(object):
                       append_slash=self.append_slash,
                       timeout=self.timeout)
 
-    def _make_request(self, opener, request, timeout=None):
+    def _make_request(self, request, timeout=None):
         """Make the API call and return the response. This is separated into
            it's own function, so we can mock it easily for testing.
 
@@ -169,9 +170,10 @@ class Client(object):
         :type timeout: float
         :return: urllib response
         """
+        opener = urllib.build_opener()
         timeout = timeout or self.timeout
         try:
-            return opener.open(request, timeout=timeout)
+            return Response(opener.open(request, timeout=timeout))
         except HTTPError as err:
             exc = handle_error(err)
             exc.__cause__ = None
@@ -250,7 +252,6 @@ class Client(object):
                             'Content-Type', 'application/json')
                         data = json.dumps(request_body).encode('utf-8')
 
-                opener = urllib.build_opener()
                 request = urllib.Request(
                     self._build_url(query_params),
                     headers=self.request_headers,
@@ -258,9 +259,7 @@ class Client(object):
                 )
                 request.get_method = lambda: method
 
-                return Response(
-                    self._make_request(opener, request, timeout=timeout)
-                )
+                return self._make_request(request, timeout=timeout)
             return http_request
         else:
             # Add a segment to the URL

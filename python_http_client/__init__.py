@@ -1,6 +1,15 @@
 import os
+import sys
 
 from .client import Client  # noqa
+
+if sys.version_info >= (3, 5):
+    try:
+        from .async_client import (
+            AsyncClient, AiohttpClientSessionError)  # noqa
+    except ImportError:
+        pass
+
 from .exceptions import (  # noqa
     HTTPError,
     BadRequestsError,
