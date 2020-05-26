@@ -1,6 +1,5 @@
 """Asynchronous Python HTTP Client Module"""
-
-from collections import namedtuple
+from io import StringIO
 import http
 from typing import Optional
 from urllib.error import URLError, HTTPError
@@ -92,7 +91,12 @@ class AsyncClient(Client):
                 body = await response.text()
                 if code >= http.HTTPStatus.BAD_REQUEST:
                     raise HTTPError(
-                        request.get_full_url(), code, body, headers, None)
+                        request.get_full_url(),
+                        code,
+                        body,
+                        headers,
+                        StringIO(body),
+                    )
         except ClientConnectionError as e:
             raise URLError(e.args[1].strerror)
         except HTTPError as e:
