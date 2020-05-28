@@ -1,10 +1,13 @@
 import asynctest
-import os
 import sys
 import pickle
 import unittest
-
 from collections import namedtuple
+
+from aiohttp import ClientSession, web
+from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
+from python_http_client.exceptions import BadRequestsError
+
 
 if sys.version_info < (3, 5):
     raise unittest.SkipTest()
@@ -12,7 +15,36 @@ if sys.version_info < (3, 5):
 from python_http_client import (
     AiohttpClientSessionError,
     AsyncClient,
-    Client)
+    Client,
+)
+
+
+class TestAsyncClientExceptionHandling(AioHTTPTestCase):
+    async def get_application(self):
+        async def handler(_):
+            raise web.HTTPBadRequest(
+                headers={'header': 'value'},
+                reason='error_reason'
+            )
+
+        app = web.Application()
+        app.router.add_get('/', handler)
+        return app
+
+    def get_url(self):
+        server = self.server
+        return '{}://{}:{}'.format(server.scheme, server.host, server.port)
+
+    @unittest_run_loop
+    async def test_error_handling(self):
+        async with ClientSession() as session:
+            client = AsyncClient(self.get_url(), client_session=session)
+            with self.assertRaises(BadRequestsError) as context:
+                await client.get()
+            exception = context.exception
+            self.assertEqual('400: error_reason', exception.body)
+            self.assertIn('header', exception.headers)
+            self.assertEqual('value', exception.headers['header'])
 
 
 class TestAsyncClient(asynctest.TestCase):
